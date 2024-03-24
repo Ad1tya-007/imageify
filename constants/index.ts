@@ -30,6 +30,11 @@ export const navLinks = [
     icon: '/assets/icons/camera.svg',
   },
   {
+    label: 'User Deadly Systems',
+    route: '/userDeadly',
+    icon: '/assets/icons/cross.svg',
+  },
+  {
     label: 'Profile',
     route: '/profile',
     icon: '/assets/icons/profile.svg',
