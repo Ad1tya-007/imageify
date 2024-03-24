@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { AspectRatioKey, debounce, deepMergeObjects } from '@/lib/utils';
 import { updateCredits } from '@/lib/database/actions/user.actions';
 import MediaUploader from './MediaUploader';
@@ -200,6 +200,12 @@ const TransformationForm = ({
     });
   };
 
+  useEffect(() => {
+    if (image && (type === 'restore' || type === 'removeBackground')) {
+      setNewTransformation(transformationType.config);
+    }
+  }, [image, transformationType.config, type]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -236,13 +242,14 @@ const TransformationForm = ({
             )}
           />
         )}
+
         {(type === 'remove' || type === 'recolor') && (
           <div className="prompt-field">
             <CustomField
               control={form.control}
               name="prompt"
               formLabel={
-                type === 'remove' ? 'Object to Remove' : 'Object to Recolor'
+                type === 'remove' ? 'Object to remove' : 'Object to recolor'
               }
               className="w-full"
               render={({ field }) => (
@@ -260,33 +267,32 @@ const TransformationForm = ({
                 />
               )}
             />
+
+            {type === 'recolor' && (
+              <CustomField
+                control={form.control}
+                name="color"
+                formLabel="Replacement Color"
+                className="w-full"
+                render={({ field }) => (
+                  <Input
+                    value={field.value}
+                    className="input-field"
+                    onChange={(e) =>
+                      onInputChangeHandler(
+                        'color',
+                        e.target.value,
+                        'recolor',
+                        field.onChange
+                      )
+                    }
+                  />
+                )}
+              />
+            )}
           </div>
         )}
 
-        {type === 'recolor' && (
-          <div className="prompt-field">
-            <CustomField
-              control={form.control}
-              name="color"
-              formLabel="Replacement Color"
-              className="w-full"
-              render={({ field }) => (
-                <Input
-                  value={field.value}
-                  className="input-field"
-                  onChange={(e) =>
-                    onInputChangeHandler(
-                      'color',
-                      e.target.value,
-                      'recolor',
-                      field.onChange
-                    )
-                  }
-                />
-              )}
-            />
-          </div>
-        )}
         <div className="media-uploader-field">
           <CustomField
             control={form.control}
