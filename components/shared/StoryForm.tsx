@@ -13,42 +13,40 @@ import {
 	CloudinaryUploadWidgetResults,
 	type CloudinaryUploadWidgetError,
 	CloudinaryUploadWidgetInfo,
+	CloudinaryUploadWidgetOptions,
 } from "next-cloudinary";
 import { CldVideoPlayer } from "next-cloudinary";
 import "next-cloudinary/dist/cld-video-player.css";
 import { toast } from "../ui/use-toast";
 import { Button } from "../ui/button";
-import Image from "next/image";
-import { on } from "events";
 
 const StoryForm = ({ userId }: any) => {
 	const [video, setVideo] = useState<any>(null);
 	const onInputChangeHandler = (
 		fieldName: string,
 		value: string,
-		type: string,
 		onChangeField: (value: string) => void
 	) => {
-		// 	debounce(() => {
-		// 		setNewTransformation((prevState: any) => ({
-		// 			...prevState,
-		// 			[type]: {
-		// 				...prevState?.[type],
-		// 				[fieldName === "prompt" ? "prompt" : "to"]: value,
-		// 			},
-		// 		}));
-		// 	}, 1000)();
-		// 	return onChangeField(value);
+		debounce(() => {
+			setVideo((prevState: any) => ({
+				...prevState,
+				[fieldName]: value,
+			}));
+		}, 1000)();
+		console.log(value);
+		return onChangeField(value);
 	};
 
 	const formSchema = z.object({
 		title: z.string(),
 		description: z.string(),
+		imageFile: z.instanceof(File).nullable(),
 	});
 
-	const initialValues = {
+	const initialValues: z.infer<typeof formSchema> = {
 		title: "",
 		description: "",
+		imageFile: null,
 	};
 	// 1. Define your form.
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -76,10 +74,9 @@ const StoryForm = ({ userId }: any) => {
 
 	const onUploadSuccessHandler = (
 		result: CloudinaryUploadWidgetResults,
-		{ widget }: CldUploadEventCallbackWidget
+		widget: any
 	) => {
 		const info = result?.info as CloudinaryUploadWidgetInfo;
-		console.log("Received data", info);
 		setVideo((prevState: any) => ({
 			...prevState,
 			publicId: info?.public_id,
@@ -88,13 +85,22 @@ const StoryForm = ({ userId }: any) => {
 			secureURL: info?.secure_url,
 		}));
 
+		console.log("Received data:", info);
+		console.log("The widget is", widget);
+
 		toast({
 			title: "Video uploaded successfully",
 			description: "1 credit was deducted from your account",
 			duration: 5000,
 			className: "success-toast",
 		});
-		widget.close();
+	};
+
+	const options: CloudinaryUploadWidgetOptions = {
+		multiple: false,
+		resourceType: "video",
+		sources: ["local", "google_drive", "url"],
+		singleUploadAutoClose: false,
 	};
 
 	return (
@@ -112,11 +118,14 @@ const StoryForm = ({ userId }: any) => {
 							uploadPreset='ve0emuef'
 							onSuccess={onUploadSuccessHandler}
 							onError={onUploadErrorHandler}
-							options={{ multiple: false, resourceType: "video" }}
+							onUploadAdded={(event) => {
+								console.log(event);
+							}}
+							options={options}
 						>
-							{(widgetObject) => {
+							{({ open }) => {
 								function onClickHandler() {
-									widgetObject.open();
+									open();
 								}
 								return video?.publicId ? (
 									<div className='hover:shadow-2xl shadow-zinc-400 rounded-lg overflow-clip'>
@@ -156,9 +165,8 @@ const StoryForm = ({ userId }: any) => {
 								placeholder='Enter a mini description for your story!'
 								onChange={(e) =>
 									onInputChangeHandler(
-										"color",
+										"description",
 										e.target.value,
-										"recolor",
 										field.onChange
 									)
 								}
