@@ -1,0 +1,3 @@
+.story-form {
+	@apply flex h-full min-h-[150px] flex-col my-8 items-center;
+}

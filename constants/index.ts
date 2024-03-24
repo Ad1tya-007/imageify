@@ -196,3 +196,10 @@ export const defaultValues = {
 };
 
 export const creditFee = -1;
+
+// Video related constants
+
+export const videoTypes = {
+	headerTitle: "Pingshu",
+	subTitle: "Narrate your stories, with a new perspective!",
+};
