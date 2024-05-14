@@ -143,7 +143,9 @@ const StoryForm = ({ userId }: any) => {
               className="flex flex-col w-[75%]"
               render={({ field }) => (
                 <CldUploadWidget
-                  uploadPreset="adi_imaginify"
+                  uploadPreset={
+                    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+                  }
                   onSuccess={onUploadSuccessHandler}
                   onError={onUploadErrorHandler}
                   onUploadAdded={(event) => {

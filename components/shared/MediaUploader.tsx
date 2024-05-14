@@ -52,7 +52,7 @@ const MediaUploader = ({
 
   return (
     <CldUploadWidget
-      uploadPreset="adi_imaginify"
+      uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
       options={{ multiple: false, resourceType: 'image' }}
       onSuccess={onUploadSuccessHandler}
       onError={onUploadErrorHandler}>
